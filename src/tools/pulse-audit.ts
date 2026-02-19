@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// storage, git, lighthouse
+// storage, git, lighthouse & utils
 import {
   saveAudit,
   saveFullResult,
@@ -12,16 +12,7 @@ import { AuditResult } from "../storage/types.js";
 import { getGitContext } from "../git/repository.js";
 import { runAudit } from "../lighthouse/runner.js";
 import { RunAuditResult } from "../lighthouse/types.js";
-
-const formatMs = (ms: number | null): string => {
-  if (ms === null) return "—";
-  return `${Math.round(ms).toLocaleString()}ms`;
-};
-
-const formatScore = (score: number | null): string => {
-  if (score === null) return "—";
-  return String(score);
-};
+import { formatMs, formatScore, formatCls, formatTimestamp } from "./format.js";
 
 const formatDelta = (delta: number | null, lowerIsBetter = false): string => {
   if (delta === null || delta === 0) return "—";
@@ -46,10 +37,7 @@ const formatAuditOutput = (
   auditResult: RunAuditResult,
   previous: AuditResult | null,
 ): string => {
-  const date = new Date(saved.timestamp)
-    .toISOString()
-    .replace("T", " ")
-    .slice(0, 16);
+  const date = formatTimestamp(saved.timestamp);
   const branch = saved.gitBranch ?? "—";
   const commit = saved.gitCommit ? saved.gitCommit.slice(0, 7) : "—";
 
@@ -107,7 +95,7 @@ const formatAuditOutput = (
     `| LCP         | ${formatMs(metrics.lcp).padStart(8)} | ${metricDelta(metrics.lcp, prevMetrics?.lcp ?? null).padStart(7)} |`,
     `| FCP         | ${formatMs(metrics.fcp).padStart(8)} | ${metricDelta(metrics.fcp, prevMetrics?.fcp ?? null).padStart(7)} |`,
     `| TBT         | ${formatMs(metrics.tbt).padStart(8)} | ${metricDelta(metrics.tbt, prevMetrics?.tbt ?? null).padStart(7)} |`,
-    `| CLS         | ${(metrics.cls !== null ? metrics.cls.toFixed(3) : "—").padStart(8)} | ${metricDelta(metrics.cls, prevMetrics?.cls ?? null, false).padStart(7)} |`,
+    `| CLS         | ${formatCls(metrics.cls).padStart(8)} | ${metricDelta(metrics.cls, prevMetrics?.cls ?? null, false).padStart(7)} |`,
     `| Speed Index | ${formatMs(metrics.speedIndex).padStart(8)} | ${metricDelta(metrics.speedIndex, prevMetrics?.speedIndex ?? null).padStart(7)} |`,
   ];
 

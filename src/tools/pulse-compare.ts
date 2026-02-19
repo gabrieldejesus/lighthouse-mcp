@@ -1,25 +1,11 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// storage, git & types
+// storage, git, types & utils
 import { AuditComparison } from "../storage/types.js";
 import { getGitContext, getBaseBranch } from "../git/repository.js";
 import { getLatestAudit, compareAudits } from "../storage/database.js";
-
-const formatMs = (ms: number | null): string => {
-  if (ms === null) return "—";
-  return `${Math.round(ms).toLocaleString()}ms`;
-};
-
-const formatScore = (score: number | null): string => {
-  if (score === null) return "—";
-  return String(score);
-};
-
-const formatCls = (cls: number | null): string => {
-  if (cls === null) return "—";
-  return cls.toFixed(3);
-};
+import { formatMs, formatScore, formatCls, formatTimestamp } from "./format.js";
 
 const scoreDeltaLabel = (delta: number | null): string => {
   if (delta === null || delta === 0) return "—";
@@ -43,9 +29,6 @@ const clsDeltaLabel = (delta: number | null): string => {
 };
 
 const pad = (s: string, len: number): string => s.padStart(len);
-
-const formatTimestamp = (ts: number): string =>
-  new Date(ts).toISOString().replace("T", " ").slice(0, 16);
 
 const formatCompareOutput = (
   url: string,

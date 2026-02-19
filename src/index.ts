@@ -3,7 +3,9 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
 // tools
 import { registerPulseAudit } from "./tools/pulse-audit.js";
+import { registerPulseStatus } from "./tools/pulse-status.js";
 import { registerPulseCompare } from "./tools/pulse-compare.js";
+import { registerPulseHistory } from "./tools/pulse-history.js";
 
 const server = new McpServer(
   {
@@ -17,7 +19,9 @@ const server = new McpServer(
 );
 
 registerPulseAudit(server);
+registerPulseStatus(server);
 registerPulseCompare(server);
+registerPulseHistory(server);
 
 const main = async () => {
   const transport = new StdioServerTransport();
