@@ -44,7 +44,7 @@ const initDatabase = (): Database.Database => {
       tbt                  REAL,
       cls                  REAL,
       speed_index          REAL,
-      full_result_path     TEXT
+      full_result_path     TEXT,
       git_commit           TEXT,
       git_branch           TEXT,
       performance_score    INTEGER,
@@ -59,10 +59,13 @@ const initDatabase = (): Database.Database => {
 
 const db = initDatabase();
 
-export const updateFullResultPath = (id: number, fullResultPath: string): void => {
+export const updateFullResultPath = (
+  id: number,
+  fullResultPath: string,
+): void => {
   db.prepare("UPDATE audits SET full_result_path = ? WHERE id = ?").run(
     fullResultPath,
-    id
+    id,
   );
 };
 
