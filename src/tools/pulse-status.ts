@@ -1,19 +1,12 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// storage, types, git & utils
+// storage, types & utils
 import { AuditResult } from "../storage/types.js";
 import { getGitContext } from "../git/repository.js";
 import { getLatestAudit, getAuditHistory } from "../storage/database.js";
-import { formatMs, formatScore, formatCls, formatTimestamp } from "./format.js";
-
-const scoreEmoji = (score: number | null): string => {
-  if (score === null) return "⚪";
-  if (score >= 90) return "🟢";
-  if (score >= 50) return "🟡";
-
-  return "🔴";
-};
+import { formatScoreTable, formatMetrics } from "../utils/format-scores.js";
+import { ScoreSet, MetricSet, formatTimestamp } from "../utils/primitives.js";
 
 const timeAgo = (ts: number): string => {
   const diffMs = Date.now() - ts;
@@ -32,7 +25,6 @@ const trendLabel = (
   audits: AuditResult[],
 ): { label: string; emoji: string } => {
   if (audits.length < 2) return { label: "not enough data", emoji: "⚪" };
-
   const newest = audits[0].performanceScore;
   const prev = audits[1].performanceScore;
 
@@ -57,31 +49,26 @@ const buildRecommendations = (latest: AuditResult): string[] => {
   } else if (latest.performanceScore !== null && latest.performanceScore < 90) {
     recs.push("Performance has room to improve — check LCP and Speed Index");
   }
-
   if (latest.accessibilityScore !== null && latest.accessibilityScore < 90) {
     recs.push(
       "Accessibility needs attention — review contrast, labels, and ARIA attributes",
     );
   }
-
   if (latest.lcp !== null && latest.lcp > 2500) {
     recs.push(
       `LCP is ${Math.round(latest.lcp)}ms (target: <2,500ms) — optimize images and server response time`,
     );
   }
-
   if (latest.tbt !== null && latest.tbt > 200) {
     recs.push(
       `TBT is ${Math.round(latest.tbt)}ms (target: <200ms) — reduce JavaScript execution time`,
     );
   }
-
   if (latest.cls !== null && latest.cls > 0.1) {
     recs.push(
       `CLS is ${latest.cls.toFixed(3)} (target: <0.1) — add size attributes to images and embeds`,
     );
   }
-
   if (
     recs.length === 0 &&
     latest.performanceScore !== null &&
@@ -89,7 +76,6 @@ const buildRecommendations = (latest: AuditResult): string[] => {
   ) {
     recs.push("All scores look great — keep monitoring for regressions");
   }
-
   return recs;
 };
 
@@ -104,24 +90,30 @@ const formatStatusOutput = (
   const commit = latest.gitCommit ? latest.gitCommit.slice(0, 7) : "—";
   const recs = buildRecommendations(latest);
 
+  const scores: ScoreSet = {
+    seo: latest.seoScore,
+    performance: latest.performanceScore,
+    accessibility: latest.accessibilityScore,
+    bestPractices: latest.bestPracticesScore,
+  };
+
+  const metrics: MetricSet = {
+    lcp: latest.lcp,
+    fcp: latest.fcp,
+    tbt: latest.tbt,
+    cls: latest.cls,
+    speedIndex: latest.speedIndex,
+  };
+
   const lines: string[] = [
     `## Pulse Status — ${url}`,
     `Branch: **${branch}** · Last audit: **${timeAgo(latest.timestamp)}** · Trend: ${trendIcon} ${trendText}`,
     "",
     "### Latest Scores",
-    "| Category       | Score | Grade |",
-    "|----------------|-------|-------|",
-    `| Performance    | ${formatScore(latest.performanceScore).padStart(5)} | ${scoreEmoji(latest.performanceScore)}    |`,
-    `| Accessibility  | ${formatScore(latest.accessibilityScore).padStart(5)} | ${scoreEmoji(latest.accessibilityScore)}    |`,
-    `| Best Practices | ${formatScore(latest.bestPracticesScore).padStart(5)} | ${scoreEmoji(latest.bestPracticesScore)}    |`,
-    `| SEO            | ${formatScore(latest.seoScore).padStart(5)} | ${scoreEmoji(latest.seoScore)}    |`,
+    formatScoreTable(scores, { mode: "grade" }),
     "",
     "### Core Web Vitals",
-    `- **LCP** ${formatMs(latest.lcp)}${latest.lcp !== null ? (latest.lcp <= 2500 ? " ✅" : " ❌") : ""}`,
-    `- **FCP** ${formatMs(latest.fcp)}`,
-    `- **TBT** ${formatMs(latest.tbt)}${latest.tbt !== null ? (latest.tbt <= 200 ? " ✅" : " ❌") : ""}`,
-    `- **CLS** ${formatCls(latest.cls)}${latest.cls !== null ? (latest.cls <= 0.1 ? " ✅" : " ❌") : ""}`,
-    `- **Speed Index** ${formatMs(latest.speedIndex)}`,
+    formatMetrics(metrics, { mode: "list" }),
     "",
     `_Audit from commit \`${commit}\` on ${formatTimestamp(latest.timestamp)}_`,
   ];
@@ -182,7 +174,6 @@ export const registerPulseStatus = (server: McpServer): void => {
           audits,
           gitCtx?.branch ?? null,
         );
-
         return { content: [{ type: "text", text: output }] };
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// storage, git, lighthouse & utils
+// storage, types & utils
 import {
   saveAudit,
   saveFullResult,
@@ -9,27 +9,11 @@ import {
   updateFullResultPath,
 } from "../storage/database.js";
 import { AuditResult } from "../storage/types.js";
-import { getGitContext } from "../git/repository.js";
 import { runAudit } from "../lighthouse/runner.js";
+import { getGitContext } from "../git/repository.js";
 import { RunAuditResult } from "../lighthouse/types.js";
-import { formatMs, formatScore, formatCls, formatTimestamp } from "./format.js";
-
-const formatDelta = (delta: number | null, lowerIsBetter = false): string => {
-  if (delta === null || delta === 0) return "—";
-  const sign = delta > 0 ? "+" : "";
-
-  if (lowerIsBetter) {
-    return delta > 0 ? `+${Math.round(delta)}` : `${Math.round(delta)}`;
-  }
-
-  return `${sign}${Math.round(delta)}`;
-};
-
-const formatMsDelta = (delta: number | null): string => {
-  if (delta === null || delta === 0) return "—";
-  const sign = delta > 0 ? "+" : "";
-  return `${sign}${Math.round(delta)}ms`;
-};
+import { formatScoreTable, formatMetrics } from "../utils/format-scores.js";
+import { ScoreSet, MetricSet, formatTimestamp } from "../utils/primitives.js";
 
 const formatAuditOutput = (
   url: string,
@@ -41,16 +25,31 @@ const formatAuditOutput = (
   const branch = saved.gitBranch ?? "—";
   const commit = saved.gitCommit ? saved.gitCommit.slice(0, 7) : "—";
 
-  const prevScores = previous
+  const scores: ScoreSet = {
+    performance: auditResult.scores.performance,
+    accessibility: auditResult.scores.accessibility,
+    bestPractices: auditResult.scores.bestPractices,
+    seo: auditResult.scores.seo,
+  };
+
+  const prevScores: ScoreSet | undefined = previous
     ? {
-        seo: previous.seoScore,
         performance: previous.performanceScore,
         accessibility: previous.accessibilityScore,
         bestPractices: previous.bestPracticesScore,
+        seo: previous.seoScore,
       }
-    : null;
+    : undefined;
 
-  const prevMetrics = previous
+  const metrics: MetricSet = {
+    lcp: auditResult.metrics.lcp,
+    fcp: auditResult.metrics.fcp,
+    tbt: auditResult.metrics.tbt,
+    cls: auditResult.metrics.cls,
+    speedIndex: auditResult.metrics.speedIndex,
+  };
+
+  const prevMetrics: MetricSet | undefined = previous
     ? {
         lcp: previous.lcp,
         fcp: previous.fcp,
@@ -58,50 +57,21 @@ const formatAuditOutput = (
         cls: previous.cls,
         speedIndex: previous.speedIndex,
       }
-    : null;
-
-  const scoreDelta = (current: number | null, prev: number | null) => {
-    if (!prevScores || current === null || prev === null) return "—";
-    return formatDelta(current - prev);
-  };
-
-  const metricDelta = (
-    current: number | null,
-    prev: number | null,
-    lowerIsBetter = true,
-  ) => {
-    if (!prevMetrics || current === null || prev === null) return "—";
-    const delta = current - prev;
-    return lowerIsBetter ? formatMsDelta(delta) : formatDelta(delta);
-  };
-
-  const { scores, metrics } = auditResult;
+    : undefined;
 
   const lines: string[] = [
     `## Pulse Audit — ${url}`,
     `Branch: ${branch}  |  Commit: ${commit}  |  ${date}`,
     "",
     "### Scores",
-    "| Category       | Score | Trend |",
-    "|----------------|-------|-------|",
-    `| Performance    | ${formatScore(scores.performance).padStart(5)} | ${scoreDelta(scores.performance, prevScores?.performance ?? null).padStart(5)} |`,
-    `| Accessibility  | ${formatScore(scores.accessibility).padStart(5)} | ${scoreDelta(scores.accessibility, prevScores?.accessibility ?? null).padStart(5)} |`,
-    `| Best Practices | ${formatScore(scores.bestPractices).padStart(5)} | ${scoreDelta(scores.bestPractices, prevScores?.bestPractices ?? null).padStart(5)} |`,
-    `| SEO            | ${formatScore(scores.seo).padStart(5)} | ${scoreDelta(scores.seo, prevScores?.seo ?? null).padStart(5)} |`,
+    formatScoreTable(scores, { mode: "trend", previous: prevScores }),
     "",
     "### Core Web Vitals",
-    "| Metric      | Value    | Trend   |",
-    "|-------------|----------|---------|",
-    `| LCP         | ${formatMs(metrics.lcp).padStart(8)} | ${metricDelta(metrics.lcp, prevMetrics?.lcp ?? null).padStart(7)} |`,
-    `| FCP         | ${formatMs(metrics.fcp).padStart(8)} | ${metricDelta(metrics.fcp, prevMetrics?.fcp ?? null).padStart(7)} |`,
-    `| TBT         | ${formatMs(metrics.tbt).padStart(8)} | ${metricDelta(metrics.tbt, prevMetrics?.tbt ?? null).padStart(7)} |`,
-    `| CLS         | ${formatCls(metrics.cls).padStart(8)} | ${metricDelta(metrics.cls, prevMetrics?.cls ?? null, false).padStart(7)} |`,
-    `| Speed Index | ${formatMs(metrics.speedIndex).padStart(8)} | ${metricDelta(metrics.speedIndex, prevMetrics?.speedIndex ?? null).padStart(7)} |`,
+    formatMetrics(metrics, { previous: prevMetrics }),
   ];
 
   if (saved.fullResultPath) {
-    lines.push("");
-    lines.push(`Full report saved to: ${saved.fullResultPath}`);
+    lines.push("", `Full report saved to: ${saved.fullResultPath}`);
   }
 
   return lines.join("\n");
@@ -159,7 +129,6 @@ export const registerPulseAudit = (server: McpServer): void => {
         updateFullResultPath(saved.id, fullResultPath);
 
         const savedWithPath: AuditResult = { ...saved, fullResultPath };
-
         const output = formatAuditOutput(
           url,
           savedWithPath,
