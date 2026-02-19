@@ -1,6 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
+// tools
+import { registerPulseAudit } from "./tools/pulse-audit.js";
+
 const server = new McpServer(
   {
     name: "pulse-mcp",
@@ -11,6 +14,8 @@ const server = new McpServer(
       "Pulse MCP tracks web performance using Lighthouse. Use pulse_audit to run an audit, pulse_compare to compare branches, pulse_history to see past results, and pulse_status for a quick overview.",
   },
 );
+
+registerPulseAudit(server);
 
 const main = async () => {
   const transport = new StdioServerTransport();

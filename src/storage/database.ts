@@ -59,6 +59,13 @@ const initDatabase = (): Database.Database => {
 
 const db = initDatabase();
 
+export const updateFullResultPath = (id: number, fullResultPath: string): void => {
+  db.prepare("UPDATE audits SET full_result_path = ? WHERE id = ?").run(
+    fullResultPath,
+    id
+  );
+};
+
 export const saveFullResult = (auditId: number, result: unknown): string => {
   const filename = `${auditId}-${Date.now()}.json`;
   const filePath = path.join(RESULTS_DIR, filename);
