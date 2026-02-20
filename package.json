@@ -13,7 +13,8 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -23,10 +24,19 @@
     "mcp",
     "lighthouse",
     "performance",
-    "web"
+    "web",
+    "web-performance",
+    "chromium",
+    "core-web-vitals"
   ],
-  "author": "",
+  "author": "Gabriel de Jesus",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist"
+  ],
   "bugs": {
     "url": "https://github.com/gabrieldejesus/pulse-mcp/issues"
   },
