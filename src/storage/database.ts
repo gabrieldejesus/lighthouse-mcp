@@ -6,9 +6,9 @@ import Database from "better-sqlite3";
 // types
 import { AuditRow, AuditComparison, AuditResult } from "./types.js";
 
-const PULSE_DIR = path.join(os.homedir(), ".pulse");
-const RESULTS_DIR = path.join(PULSE_DIR, "results");
-const DB_PATH = path.join(PULSE_DIR, "audits.db");
+const LIGHTHOUSE_DIR = path.join(os.homedir(), ".lighthouse-mcp");
+const RESULTS_DIR = path.join(LIGHTHOUSE_DIR, "results");
+const DB_PATH = path.join(LIGHTHOUSE_DIR, "audits.db");
 
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS audits (
@@ -57,7 +57,7 @@ export const createDatabase = (dbPath = DB_PATH, resultsDir = RESULTS_DIR) => {
   const isMemory = dbPath === ":memory:";
 
   if (!isMemory) {
-    fs.mkdirSync(PULSE_DIR, { recursive: true });
+    fs.mkdirSync(LIGHTHOUSE_DIR, { recursive: true });
     fs.mkdirSync(resultsDir, { recursive: true });
   }
 

@@ -81,11 +81,11 @@ const formatHistoryOutput = (
   if (audits.length === 0) {
     const branchNote = branch ? ` on branch **${branch}**` : "";
     return [
-      `## Pulse History — ${url}`,
+      `## Lighthouse History — ${url}`,
       "",
       `No audits found for this URL${branchNote}.`,
       "",
-      "Run `pulse_audit` to start tracking performance.",
+      "Run `lighthouse_audit` to start tracking performance.",
     ].join("\n");
   }
 
@@ -93,7 +93,7 @@ const formatHistoryOutput = (
   const trend = overallTrend(audits);
 
   const lines: string[] = [
-    `## Pulse History — ${url}${branchNote}`,
+    `## Lighthouse History — ${url}${branchNote}`,
     `Showing ${audits.length} audit${audits.length === 1 ? "" : "s"}${trend ? " · " + trend : ""}`,
     "",
     "### Timeline",
@@ -112,11 +112,11 @@ const formatHistoryOutput = (
   return lines.join("\n");
 };
 
-export const registerPulseHistory = (server: McpServer): void => {
+export const registerLighthouseHistory = (server: McpServer): void => {
   server.registerTool(
-    "pulse_history",
+    "lighthouse_history",
     {
-      title: "Pulse History",
+      title: "Lighthouse History",
       description:
         "Show the audit history for a URL from the local database. Returns a timeline table with scores, Core Web Vitals, trend indicators, and notable changes over time.",
       inputSchema: {
@@ -145,7 +145,7 @@ export const registerPulseHistory = (server: McpServer): void => {
           content: [
             {
               type: "text",
-              text: `## Pulse History Failed\n\n**Error:** ${message}`,
+              text: `## Lighthouse History Failed\n\n**Error:** ${message}`,
             },
           ],
           isError: true,

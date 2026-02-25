@@ -44,7 +44,7 @@ const buildRecommendations = (latest: AuditResult): string[] => {
 
   if (latest.performanceScore !== null && latest.performanceScore < 50) {
     recs.push(
-      "Performance is critical — run `pulse_audit` and investigate LCP and TBT",
+      "Performance is critical — run `lighthouse_audit` and investigate LCP and TBT",
     );
   } else if (latest.performanceScore !== null && latest.performanceScore < 90) {
     recs.push("Performance has room to improve — check LCP and Speed Index");
@@ -106,7 +106,7 @@ const formatStatusOutput = (
   };
 
   const lines: string[] = [
-    `## Pulse Status — ${url}`,
+    `## Lighthouse Status — ${url}`,
     `Branch: **${branch}** · Last audit: **${timeAgo(latest.timestamp)}** · Trend: ${trendIcon} ${trendText}`,
     "",
     "### Latest Scores",
@@ -125,11 +125,11 @@ const formatStatusOutput = (
   return lines.join("\n");
 };
 
-export const registerPulseStatus = (server: McpServer): void => {
+export const registerLighthouseStatus = (server: McpServer): void => {
   server.registerTool(
-    "pulse_status",
+    "lighthouse_status",
     {
-      title: "Pulse Status",
+      title: "Lighthouse Status",
       description:
         "Get a quick performance status overview for a URL. Shows the latest audit scores, Core Web Vitals, trend direction, and actionable recommendations based on stored results.",
       inputSchema: {
@@ -156,11 +156,11 @@ export const registerPulseStatus = (server: McpServer): void => {
               {
                 type: "text",
                 text: [
-                  `## Pulse Status — ${url}`,
+                  `## Lighthouse Status — ${url}`,
                   "",
                   `No audits found for this URL${branchNote}.`,
                   "",
-                  "Run `pulse_audit` to start tracking performance.",
+                  "Run `lighthouse_audit` to start tracking performance.",
                 ].join("\n"),
               },
             ],
@@ -181,7 +181,7 @@ export const registerPulseStatus = (server: McpServer): void => {
           content: [
             {
               type: "text",
-              text: `## Pulse Status Failed\n\n**Error:** ${message}`,
+              text: `## Lighthouse Status Failed\n\n**Error:** ${message}`,
             },
           ],
           isError: true,

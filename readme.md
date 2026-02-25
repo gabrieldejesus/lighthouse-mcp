@@ -1,10 +1,22 @@
-# Pulse MCP
+# Lighthouse MCP
 
 Performance tracking that your AI understands.
 
 Runs Lighthouse audits, stores results locally with git context, and surfaces scores, Core Web Vitals, and trend comparisons directly in your AI chat.
 
 ---
+
+## Installation
+
+```bash
+npm install -g @igabrieldejesus/lighthouse-mcp
+```
+
+Or use directly with `npx` (no installation needed):
+
+```bash
+npx @igabrieldejesus/lighthouse-mcp
+```
 
 ## Requirements
 
@@ -22,9 +34,9 @@ Open **Settings → MCP → Add new server**:
 ```json
 {
   "mcpServers": {
-    "pulse-mcp": {
+    "lighthouse-mcp": {
       "command": "npx",
-      "args": ["pulse-mcp"]
+      "args": ["@igabrieldejesus/lighthouse-mcp"]
     }
   }
 }
@@ -37,9 +49,9 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "pulse-mcp": {
+    "lighthouse-mcp": {
       "command": "npx",
-      "args": ["pulse-mcp"]
+      "args": ["@igabrieldejesus/lighthouse-mcp"]
     }
   }
 }
@@ -51,12 +63,12 @@ Restart the client after saving.
 
 ## Tools
 
-| Tool            | What it does                                                                                       |
-| --------------- | -------------------------------------------------------------------------------------------------- |
-| `pulse_audit`   | Run a Lighthouse audit on a URL. Saves scores, Core Web Vitals, and the full LHR with git context. |
-| `pulse_compare` | Compare the latest audit on two branches side-by-side with delta indicators.                       |
-| `pulse_history` | Show a timeline of past audits for a URL with trend arrows.                                        |
-| `pulse_status`  | Quick overview — latest scores, pass/fail vitals, and recommendations.                             |
+| Tool                 | What it does                                                                                       |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| `lighthouse_audit`   | Run a Lighthouse audit on a URL. Saves scores, Core Web Vitals, and the full LHR with git context. |
+| `lighthouse_compare` | Compare the latest audit on two branches side-by-side with delta indicators.                       |
+| `lighthouse_history` | Show a timeline of past audits for a URL with trend arrows.                                        |
+| `lighthouse_status`  | Quick overview — latest scores, pass/fail vitals, and recommendations.                             |
 
 **Example prompts:**
 
@@ -71,7 +83,7 @@ What's the status of https://my-site.com?
 
 ## Options
 
-`pulse_audit` accepts:
+`lighthouse_audit` accepts:
 
 | Parameter    | Type                                                        | Default    |
 | ------------ | ----------------------------------------------------------- | ---------- |
@@ -83,10 +95,10 @@ What's the status of https://my-site.com?
 
 ## Local storage
 
-Results are saved automatically to `~/.pulse/`:
+Results are saved automatically to `~/.lighthouse-mcp/`:
 
 ```
-~/.pulse/
+~/.lighthouse-mcp/
 ├── audits.db          # SQLite — all audit metadata
 └── results/           # Full Lighthouse JSON reports
     └── 1-1708354200000.json
@@ -99,8 +111,8 @@ No account, no server, no config file needed.
 ## Self-host / develop
 
 ```bash
-git clone https://github.com/gabrieldejesus/pulse-mcp
-cd pulse-mcp
+git clone https://github.com/gabrieldejesus/lighthouse-mcp
+cd lighthouse-mcp-src
 npm install
 npm run build
 npm test
@@ -111,7 +123,7 @@ Point your MCP client at the local build:
 ```json
 {
   "command": "node",
-  "args": ["/path/to/pulse-mcp/dist/index.js"]
+  "args": ["/path/to/lighthouse-mcp-src/dist/index.js"]
 }
 ```
 

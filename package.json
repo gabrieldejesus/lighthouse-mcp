@@ -1,11 +1,11 @@
 {
-  "name": "pulse-mcp",
-  "version": "1.0.1",
+  "name": "@igabrieldejesus/lighthouse-mcp",
+  "version": "0.0.1",
   "description": "MCP server for tracking web performance with Lighthouse",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "pulse-mcp": "dist/index.js"
+    "lighthouse-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsup",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gabrieldejesus/pulse-mcp.git"
+    "url": "git+https://github.com/gabrieldejesus/lighthouse-mcp.git"
   },
   "keywords": [
     "mcp",
@@ -27,7 +27,14 @@
     "web",
     "web-performance",
     "chromium",
-    "core-web-vitals"
+    "core-web-vitals",
+    "mcp-server",
+    "mcp-server-lighthouse",
+    "claude",
+    "cursor",
+    "ai",
+    "web",
+    "metrics"
   ],
   "author": "Gabriel de Jesus",
   "license": "MIT",
@@ -38,9 +45,9 @@
     "dist"
   ],
   "bugs": {
-    "url": "https://github.com/gabrieldejesus/pulse-mcp/issues"
+    "url": "https://github.com/gabrieldejesus/lighthouse-mcp/issues"
   },
-  "homepage": "https://github.com/gabrieldejesus/pulse-mcp#readme",
+  "homepage": "https://github.com/gabrieldejesus/lighthouse-mcp#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
     "better-sqlite3": "^12.6.2",

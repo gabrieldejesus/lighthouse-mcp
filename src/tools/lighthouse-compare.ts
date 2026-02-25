@@ -11,15 +11,15 @@ const noAuditMessage = (
   branch: string,
   role: "baseline" | "current",
 ): string =>
-  `## Pulse Compare — No ${role} audit found\n\nNo audit exists for **${url}** on branch **${branch}**.\n\nRun \`pulse_audit\` on that branch first, then compare.`;
+  `## Lighthouse Compare — No ${role} audit found\n\nNo audit exists for **${url}** on branch **${branch}**.\n\nRun \`lighthouse_audit\` on that branch first, then compare.`;
 
-export const registerPulseCompare = (server: McpServer): void => {
+export const registerLighthouseCompare = (server: McpServer): void => {
   server.registerTool(
-    "pulse_compare",
+    "lighthouse_compare",
     {
-      title: "Pulse Compare",
+      title: "Lighthouse Compare",
       description:
-        "Compare Lighthouse audit results between two branches for a given URL. Shows side-by-side scores and Core Web Vitals with delta indicators, highlighting regressions and improvements. Run pulse_audit on both branches first.",
+        "Compare Lighthouse audit results between two branches for a given URL. Shows side-by-side scores and Core Web Vitals with delta indicators, highlighting regressions and improvements. Run lighthouse_audit on both branches first.",
       inputSchema: {
         url: z.string().url().describe("The URL to compare audits for"),
         baselineBranch: z
@@ -79,7 +79,7 @@ export const registerPulseCompare = (server: McpServer): void => {
         );
 
         const output = [
-          `## Pulse Compare — ${url}`,
+          `## Lighthouse Compare — ${url}`,
           `Comparing: **${resolvedCurrentBranch}** vs **${resolvedBaselineBranch}**`,
           "",
           "### Scores",
@@ -93,7 +93,7 @@ export const registerPulseCompare = (server: McpServer): void => {
           content: [
             {
               type: "text",
-              text: `## Pulse Compare Failed\n\n**Error:** ${message}`,
+              text: `## Lighthouse Compare Failed\n\n**Error:** ${message}`,
             },
           ],
           isError: true,

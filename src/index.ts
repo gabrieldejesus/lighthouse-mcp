@@ -2,31 +2,31 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
 // tools
-import { registerPulseAudit } from "./tools/pulse-audit.js";
-import { registerPulseStatus } from "./tools/pulse-status.js";
-import { registerPulseCompare } from "./tools/pulse-compare.js";
-import { registerPulseHistory } from "./tools/pulse-history.js";
+import { registerLighthouseAudit } from "./tools/lighthouse-audit.js";
+import { registerLighthouseStatus } from "./tools/lighthouse-status.js";
+import { registerLighthouseCompare } from "./tools/lighthouse-compare.js";
+import { registerLighthouseHistory } from "./tools/lighthouse-history.js";
 
 const server = new McpServer(
   {
-    name: "pulse-mcp",
+    name: "lighthouse-mcp",
     version: "1.0.0",
   },
   {
     instructions:
-      "Pulse MCP tracks web performance using Lighthouse. Use pulse_audit to run an audit, pulse_compare to compare branches, pulse_history to see past results, and pulse_status for a quick overview.",
+      "Lighthouse MCP tracks web performance using Lighthouse. Use lighthouse_audit to run an audit, lighthouse_compare to compare branches, lighthouse_history to see past results, and lighthouse_status for a quick overview.",
   },
 );
 
-registerPulseAudit(server);
-registerPulseStatus(server);
-registerPulseCompare(server);
-registerPulseHistory(server);
+registerLighthouseAudit(server);
+registerLighthouseStatus(server);
+registerLighthouseCompare(server);
+registerLighthouseHistory(server);
 
 const main = async () => {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Pulse MCP server running on stdio");
+  console.error("Lighthouse MCP server running on stdio");
 };
 
 main().catch((error) => {

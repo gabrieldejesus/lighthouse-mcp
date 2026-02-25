@@ -60,7 +60,7 @@ const formatAuditOutput = (
     : undefined;
 
   const lines: string[] = [
-    `## Pulse Audit — ${url}`,
+    `## Lighthouse Audit — ${url}`,
     `Branch: ${branch}  |  Commit: ${commit}  |  ${date}`,
     "",
     "### Scores",
@@ -77,11 +77,11 @@ const formatAuditOutput = (
   return lines.join("\n");
 };
 
-export const registerPulseAudit = (server: McpServer): void => {
+export const registerLighthouseAudit = (server: McpServer): void => {
   server.registerTool(
-    "pulse_audit",
+    "lighthouse_audit",
     {
-      title: "Pulse Audit",
+      title: "Lighthouse Audit",
       description:
         "Run a Lighthouse performance audit on a URL. Saves results locally with git context and returns a markdown summary with scores, Core Web Vitals, and trend indicators compared to the previous audit on the same branch.",
       inputSchema: {
@@ -143,7 +143,7 @@ export const registerPulseAudit = (server: McpServer): void => {
           content: [
             {
               type: "text",
-              text: `## Pulse Audit Failed\n\n**Error:** ${message}`,
+              text: `## Lighthouse Audit Failed\n\n**Error:** ${message}`,
             },
           ],
           isError: true,

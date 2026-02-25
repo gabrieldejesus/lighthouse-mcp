@@ -1,5 +1,5 @@
 node_modules/
 planning/
 dist/
-.pulse/
+.lighthouse-mcp/
 *.js.map
